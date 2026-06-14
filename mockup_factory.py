@@ -43,30 +43,6 @@ def _imagemagick_composite(inner_path: str, frame_path: str, out_path: str) -> b
         return False
 
 
-def _apply_perspective(im: Image.Image, magnitude: float = 0.12) -> Image.Image:
-    # Create a subtle perspective warp to make mockups feel more realistic.
-    w, h = im.size
-    shift = int(w * magnitude)
-    coeffs = _perspective_coeffs(
-        (0, 0, w, 0, w, h, 0, h),
-        (shift, 0, w - shift, 0, w, h, 0, h)
-    )
-    return im.transform((w, h), Image.PERSPECTIVE, coeffs, Image.BICUBIC)
-
-
-def _perspective_coeffs(src, dst):
-    # Computes coefficients for PIL perspective transform.
-    matrix = []
-    for p1, p2 in zip(zip(*[iter(src)]*2), zip(*[iter(dst)]*2)):
-        matrix.append([p1[0], p1[1], 1, 0, 0, 0, -p2[0]*p1[0], -p2[0]*p1[1]])
-        matrix.append([0, 0, 0, p1[0], p1[1], 1, -p2[1]*p1[0], -p2[1]*p1[1]])
-    A = matrix
-    B = [c for pair in zip(*[iter(dst)]*2) for c in pair]
-    import numpy as np
-    res = np.linalg.lstsq(np.array(A, dtype=float), np.array(B, dtype=float), rcond=None)[0]
-    return res.tolist()
-
-
 def ensure_dir():
     os.makedirs(MOCKUPS_DIR, exist_ok=True)
 
