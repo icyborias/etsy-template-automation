@@ -51,7 +51,9 @@ def build_html(scout_json_path: str, brief_paths: List[str]) -> str:
 
 def save_digest(html: str, out_path: Optional[str] = None) -> str:
     if out_path is None:
-        out_path = os.path.join(BRIEFS_DIR, f"{os.path.basename('digest')}-{int(os.times().elapsed)}.html")
+        import time
+        timestamp = int(time.time() * 1000) % 1000000  # Use millisecond timestamp
+        out_path = os.path.join(BRIEFS_DIR, f"digest-{timestamp}.html")
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(html)
     return out_path
